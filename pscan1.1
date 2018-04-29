@@ -1,27 +1,44 @@
 #!/usr/bin/env python
+
 import socket
-import subprocess
+import argparse
 import sys
+import os
 from datetime import datetime
+from argparse import RawTextHelpFormatter
 
+os.system('cls' if os.name=='nt' else 'clear') #Ocisti Ekran
 
-subprocess.call('clear')  #Ocisti Ekran
-socket.setdefaulttimeout(0.5)
+p=argparse.ArgumentParser(formatter_class=RawTextHelpFormatter,description="Port skener, python projekat\nAutor: Dervisevic Rajko ET27/2016\nMentor: Babkovic Kalman")
+p.add_argument("-u","--url",required=True,type=str,help="Ime hosta")#,default=p.print_help(sys.stderr))
+p.add_argument("-p","--port",type=int,help="Skeniranje specificnog porta")
+p.add_argument("-v","--verbose",help="Detaljniji prikaz skeniranja",action="store_true")
+arg=vars(p.parse_args())
+
+otvoreni=[]
+
 def skener():
-
+    print("\nSkeniranje u toku...\n\n")
     try:
-        for port in range(1,1025):#(21,25,80,110,143):
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        for port in range(1,1025):
+            s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
             scan=s.connect_ex((servIP,port))
-            # print scan
-            if scan==0:
-                print "Port {}: Open".format(port)
-            # else:
-            #     print "Port {}: Closed".format(port)
-            s.close()
+
+            if arg["verbose"] is True:
+                if scan==0:
+                    print "[{}] Port {}: Open".format(datetime.now().strftime("%H:%M:%S"),port)
+                    otvoreni.append(port)
+
+                else:
+                    print "[{}] Port {}: Closed".format(datetime.now().strftime("%H:%M:%S"),port)
+                s.close()
+            else:
+                if scan==0:
+                    print "Port {}: Open".format(port)
     except KeyboardInterrupt:
-        sys.stderr.write("\nIzlaz iz programa po zahtevu korisnika ( CTRL +C )\n")
+        sys.stderr.write("\nIzlaz iz programa po zahtevu korisnika (CTRL + C)\n")
         sys.exit(1)
+
     except socket.gaierror:
         sys.stderr.write('Nepoznato ime hosta!\n')
         sys.exit(2)
@@ -29,15 +46,13 @@ def skener():
     except socket.error:
         sys.stderr.write("Neuspesno povezivanje sa serverom\n")
         sys.exit(3)
-    t2 = datetime.now()
-    vreme =  t2 - t1
-
-    print 'Skeniranje zavrseno za: ', vreme
-    s.close()
-    #sys.exit()
+    t2=datetime.now()
+    global vreme
+    vreme=t2-t1
 
 def portskener():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    t1=datetime.now()
     try:
         scan= s.connect_ex((servIP,port))
         if scan==0:
@@ -47,7 +62,7 @@ def portskener():
         s.close()
         t2=datetime.now()
         vreme=t2-t1
-        print 'Skeniranje zavrseno za: ', vreme
+        print '\nSkeniranje zavrseno za: ', vreme,'\n\n'
         sys.exit()
     except KeyboardInterrupt:
         sys.stderr.write("\nIzlaz iz programa po zahtevu korisnika ( CTRL +C )\n")
@@ -59,53 +74,33 @@ def portskener():
     except socket.error:
         sys.stderr.write("Neuspesno povezivanje sa serverom\n")
         sys.exit(3)
-
-
-print "Port Scanner, opcije:\n -s : Standardno skeniranje;"
-print " -p : Skeniranje specificnog porta"
-print " Program se moze pokrenuti i bez argumenata, i sa predefinisanim opcijama"
-print " Primer: 1) ./pscan.py 192.168.1.1 -s" # Moze se pokrenuti i samo kao ./pscan.py pa birati opcije
-print "         2) ./pscan.py"                # a moze se pokrenuti i sa argumentima
-print "         2) ./pscan.py localhost"
-print "         2) ./pscan.py ftn.uns.ac.rs -p 80"
-print " Autor: Dervisevic Rajko ET27/2016"
-
-if len(sys.argv)>1:
-    serv=sys.argv[1]
-else:
-    serv= raw_input("Unesite URL ili IP za skeniranje: ")
+#---------------------------------------------------------------------------------------------------------------------
+socket.setdefaulttimeout(0.05)
+serv=arg["url"]
+t1=datetime.now()
 try:
-    servIP = socket.gethostbyname(serv)
+    servIP=socket.gethostbyname(serv)
 except socket.gaierror:
-        sys.stderr.write('Nepoznato ime hosta!\n')
-        sys.exit(2)
+    sys.stderr.write('Nepoznato ime hosta!\n')
+    sys.exit(2)
 
-try:
-    if sys.argv[2]=="-p":
-        print sys.argv[2]
-        print len(sys.argv)
-        if len(sys.argv)!=3:
-            port=int(sys.argv[3])
+if arg["port"] is not None:
+    port=arg["port"]
+    print("\nSkeniranje u toku...\n\n")
+    portskener()
+else:
+    skener()
+    if arg["verbose"] is True:
+        if len(otvoreni)==0:
+            print "------------------------------------------------------------------------------------"
+            print '\nSkeniranje zavrseno za: ',vreme,'\n\n'
+            print "Nema otvorenih portova\n"
         else:
-            port=input("Unesite koji port zelite da skenirate\n")
-        print "\nSkeniranje u toku..."
-        t1=datetime.now()
-        portskener()
-    elif sys.argv[2]=="-s":
-        print "\nSkeniranje u toku..."
-        t1=datetime.now()
-        skener()
-except IndexError:
-    print "Odaberite tip skeniranja:\n"
-    print "1. Skeniranje specificnog porta"
-    print "2. Standardno skeniranje portova (1,1025)"
-    izbor=input("1/2\n")
-    if (izbor == 1):
-        port=input("Unesite koji port zelite da skenirate\n")
-        print "\nSkeniranje u toku..."
-        t1=datetime.now()
-        portskener()
-    elif (izbor ==2):
-        print "\nSkeniranje u toku..."
-        t1=datetime.now()
-        skener()
+            print "------------------------------------------------------------------------------------"
+            print '\nSkeniranje zavrseno za: ',vreme,'\n\n'
+            print "Otvoreni portovi su:"
+            for i in range (0,len(otvoreni)):
+                print "Port [{}]".format(otvoreni[i])
+            print "\n"
+    else:
+        print '\nSkeniranje zavrseno za: ',vreme,'\n\n'
