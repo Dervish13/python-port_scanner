@@ -9,7 +9,7 @@ from argparse import RawTextHelpFormatter
 
 os.system('cls' if os.name=='nt' else 'clear') #Ocisti Ekran
 
-p=argparse.ArgumentParser(formatter_class=RawTextHelpFormatter,description="Port skener, python projekat\nAutor: Dervisevic Rajko ET27/2016\nMentor: Babkovic Kalman")
+p=argparse.ArgumentParser(formatter_class=RawTextHelpFormatter,description="Port skener, python projekat\nAutor: Dervisevic Rajko")
 p.add_argument("-u","--url",required=True,type=str,help="Ime hosta")#,default=p.print_help(sys.stderr))
 p.add_argument("-p","--port",type=int,help="Skeniranje specificnog porta")
 p.add_argument("-v","--verbose",help="Detaljniji prikaz skeniranja",action="store_true")
