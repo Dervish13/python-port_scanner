@@ -7,12 +7,12 @@ import os
 from datetime import datetime
 from argparse import RawTextHelpFormatter
 
-os.system('cls' if os.name=='nt' else 'clear') #Ocisti Ekran
+os.system('cls' if os.name=='nt' else 'clear') #Clear the screen
 
-p=argparse.ArgumentParser(formatter_class=RawTextHelpFormatter,description="Port skener, python projekat\nAutor: Dervisevic Rajko")
-p.add_argument("-u","--url",required=True,type=str,help="Ime hosta")#,default=p.print_help(sys.stderr))
-p.add_argument("-p","--port",type=int,help="Skeniranje specificnog porta")
-p.add_argument("-v","--verbose",help="Detaljniji prikaz skeniranja",action="store_true")
+p=argparse.ArgumentParser(formatter_class=RawTextHelpFormatter,description="Port scanner, \nAutor: Dervisevic Rajko")
+p.add_argument("-u","--url",required=True,type=str,help="Target to scan")#,default=p.print_help(sys.stderr))
+p.add_argument("-p","--port",type=int,help="Scan specific port")
+p.add_argument("-v","--verbose",help="Verbose view",action="store_true")
 arg=vars(p.parse_args())
 
 otvoreni=[]
@@ -26,15 +26,15 @@ def skener():
 
             if arg["verbose"] is True:
                 if scan==0:
-                    print "[{}] Port {}: Open".format(datetime.now().strftime("%H:%M:%S"),port)
+                    print ("[{}] Port {}: Open".format(datetime.now().strftime("%H:%M:%S"),port))
                     otvoreni.append(port)
 
                 else:
-                    print "[{}] Port {}: Closed".format(datetime.now().strftime("%H:%M:%S"),port)
+                    print ("[{}] Port {}: Closed".format(datetime.now().strftime("%H:%M:%S"),port))
                 s.close()
             else:
                 if scan==0:
-                    print "Port {}: Open".format(port)
+                    print ("Port {}: Open".format(port))
     except KeyboardInterrupt:
         sys.stderr.write("\nIzlaz iz programa po zahtevu korisnika (CTRL + C)\n")
         sys.exit(1)
@@ -56,13 +56,13 @@ def portskener():
     try:
         scan= s.connect_ex((servIP,port))
         if scan==0:
-            print "Port {}: Open".format(port)
+            print ("Port {}: Open".format(port))
         else:
-             print "Port {}: Closed".format(port)
+             print ("Port {}: Closed".format(port))
         s.close()
         t2=datetime.now()
         vreme=t2-t1
-        print '\nSkeniranje zavrseno za: ', vreme,'\n\n'
+        print ('\nSkeniranje zavrseno za: ', vreme,'\n\n')
         sys.exit()
     except KeyboardInterrupt:
         sys.stderr.write("\nIzlaz iz programa po zahtevu korisnika ( CTRL +C )\n")
@@ -92,15 +92,15 @@ else:
     skener()
     if arg["verbose"] is True:
         if len(otvoreni)==0:
-            print "------------------------------------------------------------------------------------"
-            print '\nSkeniranje zavrseno za: ',vreme,'\n\n'
-            print "Nema otvorenih portova\n"
+            print ("------------------------------------------------------------------------------------")
+            print ('\nSkeniranje zavrseno za: ',vreme,'\n\n')
+            print ("Nema otvorenih portova\n")
         else:
-            print "------------------------------------------------------------------------------------"
-            print '\nSkeniranje zavrseno za: ',vreme,'\n\n'
-            print "Otvoreni portovi su:"
+            print ("------------------------------------------------------------------------------------")
+            print ('\nSkeniranje zavrseno za: ',vreme,'\n\n')
+            print ("Otvoreni portovi su:")
             for i in range (0,len(otvoreni)):
-                print "Port [{}]".format(otvoreni[i])
-            print "\n"
+                print ("Port [{}]".format(otvoreni[i]))
+            print ("\n")
     else:
-        print '\nSkeniranje zavrseno za: ',vreme,'\n\n'
+        print ('\nSkeniranje zavrseno za: ',vreme,'\n\n')
